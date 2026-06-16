@@ -1,6 +1,6 @@
 # 秒享商用换电 Skills
 
-本仓库提供了秒享商用换电 pre 环境相关技能，帮助你在 Codex 等支持 Skill 的智能工具中完成登录、生成接口请求、调用 pre 环境业务接口并分析响应。
+本仓库提供了秒享商用换电 pre 环境相关 Skills，帮助你在支持 Skills 的智能工具中完成登录、生成接口请求、调用 pre 环境业务接口并分析响应。
 
 > [!WARNING]
 > 当前技能仍处于实验阶段。请谨慎使用，并**强烈建议对 AI 发起的操作（包括登录、开仓、禁用、启用等 API 调用）进行人工审核**。
@@ -29,7 +29,7 @@
 npx skills add liao-can-jie/mxsy-skill
 ```
 
-也可以手动安装，将本仓库中的 skill 目录复制到 Codex skills 目录。
+也可以手动安装，将本仓库中的 skill 目录复制到你的智能工具约定的 Skills 目录。
 
 PowerShell 示例：
 
@@ -37,13 +37,14 @@ PowerShell 示例：
 git clone https://github.com/liao-can-jie/mxsy-skill.git
 cd mxsy-skill
 
+# 将此路径替换为你的工具实际使用的 Skills 目录。
 $skillsDir = "$env:USERPROFILE\.codex\skills"
 New-Item -ItemType Directory -Force $skillsDir
 Copy-Item -Recurse -Force .\mxsy-pre-auth-login $skillsDir
 Copy-Item -Recurse -Force .\mxsy-pre-cabinet-door $skillsDir
 ```
 
-安装后重启 Codex，或开启新的 Codex 会话，使 skill 元数据重新加载。
+安装后重启对应智能工具，或开启新的会话，使 skill 元数据重新加载。
 
 ## 使用示例
 
@@ -187,7 +188,7 @@ curl --request POST \
 
 ## 验证
 
-如果本机有可用 Python，可以使用 Codex skill creator 校验器：
+如果本机有可用 Python，可以使用 skill creator 校验器：
 
 ```sh
 python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\mxsy-pre-auth-login
