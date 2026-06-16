@@ -1,93 +1,81 @@
-# mxsy-skill
+# 秒享商用换电 Skills
 
-秒享商用换电 pre 环境 Codex skills 集合，用于让 Codex 按固定接口规则生成请求、执行登录、调用业务接口并解释响应。
+本仓库提供了秒享商用换电 pre 环境相关技能，帮助你在 Codex 等支持 Skill 的智能工具中完成登录、生成接口请求、调用 pre 环境业务接口并分析响应。
+
+> [!WARNING]
+> 当前技能仍处于实验阶段。请谨慎使用，并**强烈建议对 AI 发起的操作（包括登录、开仓、禁用、启用等 API 调用）进行人工审核**。
 
 ## 技能列表
 
-### `mxsy-pre-auth-login`
+| 技能 | 简介 |
+| --- | --- |
+| [`mxsy-pre-auth-login`](./mxsy-pre-auth-login/SKILL.md) | 秒享商用换电 pre 环境认证登录技能。用于构造和调用 `POST /mx-ce-auth/oauth2/token`，支持 `password`、`captcha`、`uni_app_sms`、`uni_app_password`、`uni_app_wx`、`refresh_token` 等授权模式。`password` 和 `captcha` 登录固定携带 Basic 客户端请求头，登录成功后将 `data.token_type` 与 `data.access_token` 组合为后续业务接口的 `Authorization` 请求头。 |
+| [`mxsy-pre-cabinet-door`](./mxsy-pre-cabinet-door/SKILL.md) | 秒享商用换电 pre 环境电柜门操控技能。用于构造和调用 `POST /mx-ce-system/api/cabinet/optCabinetDoor`，支持打开一个或多个仓门、禁用/启用一个或多个仓门、禁用/启用整柜，并按接口规则固定使用操作密码 `123456`。 |
 
-pre 环境认证登录 skill。
+> [!TIP]
+> 技能会随着 pre 环境接口规则继续完善。提交新技能或修正接口规则时，请避免把真实 access token、refresh token、短信验证码、用户密码写入文档或提交记录。
 
-适用场景：
+## 安装 Skills
 
-- 构造 `POST /mx-ce-auth/oauth2/token` 登录请求。
-- 支持 `password`、`captcha`、`uni_app_sms`、`uni_app_password`、`uni_app_wx`、`refresh_token` 等授权模式。
-- `grant_type=password` 和 `grant_type=captcha` 固定携带 Basic 客户端请求头。
-- 登录成功后，从响应 `data.token_type` 和 `data.access_token` 组合后续业务接口请求头。
-- 解释登录接口返回的业务码和错误信息。
+支持 Skills 的智能工具通常可以通过仓库地址安装。可参考如下提示词：
 
-关键规则：
+```txt
+帮我安装 https://github.com/liao-can-jie/mxsy-skill 上的技能，可以通过 `npx skills add liao-can-jie/mxsy-skill` 来进行安装。
+```
 
-- pre 登录地址：`https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token`
-- 请求类型：`application/x-www-form-urlencoded`
-- `password` / `captcha` 登录固定客户端头：
-  `Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=`
-- 后续业务接口鉴权头组合方式：
-  `Authorization: <token_type> <access_token>`
-- 示例：`token_type=Bearer` 时使用 `Authorization: Bearer <access_token>`
+如果你的环境支持 `npx skills add`，可以直接执行：
 
-### `mxsy-pre-cabinet-door`
+```sh
+npx skills add liao-can-jie/mxsy-skill
+```
 
-pre 环境电柜门操控 skill。
+也可以手动安装，将本仓库中的 skill 目录复制到 Codex skills 目录。
 
-适用场景：
+PowerShell 示例：
 
-- 构造并调用 `POST /mx-ce-system/api/cabinet/optCabinetDoor`。
-- 打开一个或多个仓门。
-- 禁用一个或多个仓门。
-- 启用一个或多个仓门。
-- 禁用或启用整柜。
-- 根据登录 skill 产出的 token 组合业务接口鉴权头。
-- 解释电柜接口返回的业务码和错误信息。
+```powershell
+git clone https://github.com/liao-can-jie/mxsy-skill.git
+cd mxsy-skill
 
-关键规则：
+$skillsDir = "$env:USERPROFILE\.codex\skills"
+New-Item -ItemType Directory -Force $skillsDir
+Copy-Item -Recurse -Force .\mxsy-pre-auth-login $skillsDir
+Copy-Item -Recurse -Force .\mxsy-pre-cabinet-door $skillsDir
+```
 
-- pre 电柜接口地址：`https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor`
-- 请求类型：`application/json`
-- 操作密码目前固定：`123456`
-- `optType=1`：开启/打开仓门，必须传 `doorIds`
-- `optType=2`：禁用，`doorIds` 为空或不传表示整柜禁用
-- `optType=3`：启用，`doorIds` 为空或不传表示整柜启用
-- 同时操作多个仓门时，`doorIds` 传数组，例如 `[1, 2, 3]`
-- 不要把空 `doorIds` 用作一键开仓
+安装后重启 Codex，或开启新的 Codex 会话，使 skill 元数据重新加载。
 
 ## 使用示例
 
-### 使用 Codex 调用登录
+### 登录 pre 环境
 
-```text
+```txt
 使用 mxsy-pre-auth-login，pre 环境登录，grant_type=password，账号 <username>，密码 <password>，获取 access_token 和 token_type。
 ```
 
-登录成功后，skill 会从响应中读取：
+该技能会按接口规则调用：
 
-```text
-data.token_type
-data.access_token
+```txt
+POST https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=
 ```
 
-并组合成后续接口使用的请求头：
+登录成功后，后续业务接口请求头为：
 
-```text
+```txt
+Authorization: <token_type> <access_token>
+```
+
+例如 `token_type` 为 `Bearer` 时：
+
+```txt
 Authorization: Bearer <access_token>
 ```
 
-### 登录接口 cURL 示例
+### 打开指定仓门
 
-```bash
-curl --request POST \
-  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
-  --header "Accept: */*" \
-  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
-  --header "Content-Type: application/x-www-form-urlencoded" \
-  --data-urlencode "grant_type=password" \
-  --data-urlencode "username=<username>" \
-  --data-urlencode "password=<password>"
-```
-
-### 使用 Codex 打开多个仓门
-
-```text
+```txt
 使用 mxsy-pre-cabinet-door，打开电柜 TSD25100059 的 1、2 号仓门。
 ```
 
@@ -102,25 +90,26 @@ curl --request POST \
 }
 ```
 
-### 电柜开门 cURL 示例
+### 打开多个仓门
 
-```bash
-curl --request POST \
-  --url "https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor" \
-  --header "Accept: */*" \
-  --header "Authorization: Bearer <access-token>" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "devId": "TSD25100059",
-    "doorIds": [1, 2],
-    "optType": 1,
-    "password": "123456"
-  }'
+```txt
+使用 mxsy-pre-cabinet-door，打开电柜 TSD25100059 的 3、4、5 号仓门。
+```
+
+对应请求体：
+
+```json
+{
+  "devId": "TSD25100059",
+  "doorIds": [3, 4, 5],
+  "optType": 1,
+  "password": "123456"
+}
 ```
 
 ### 禁用整柜
 
-```text
+```txt
 使用 mxsy-pre-cabinet-door，禁用电柜 TSD25100059 整柜。
 ```
 
@@ -134,9 +123,11 @@ curl --request POST \
 }
 ```
 
+`optType=2` 时，`doorIds` 为空或不传表示禁用整柜。
+
 ### 启用多个仓门
 
-```text
+```txt
 使用 mxsy-pre-cabinet-door，启用电柜 TSD25100059 的 3、4、5 号仓门。
 ```
 
@@ -151,39 +142,58 @@ curl --request POST \
 }
 ```
 
-## 安装 skills
+### 直接使用 cURL 登录
 
-将本仓库中的 skill 目录复制到 Codex skills 目录即可使用。
-
-PowerShell 示例：
-
-```powershell
-$skillsDir = "$env:USERPROFILE\.codex\skills"
-New-Item -ItemType Directory -Force $skillsDir
-Copy-Item -Recurse -Force .\mxsy-pre-auth-login $skillsDir
-Copy-Item -Recurse -Force .\mxsy-pre-cabinet-door $skillsDir
+```sh
+curl --request POST \
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=password" \
+  --data-urlencode "username=<username>" \
+  --data-urlencode "password=<password>"
 ```
 
-安装后重启 Codex，或开启新的 Codex 会话，使 skill 元数据重新加载。
+### 直接使用 cURL 操控电柜门
 
-也可以直接从 GitHub 克隆后复制：
-
-```powershell
-git clone https://github.com/liao-can-jie/mxsy-skill.git
-cd mxsy-skill
-$skillsDir = "$env:USERPROFILE\.codex\skills"
-New-Item -ItemType Directory -Force $skillsDir
-Copy-Item -Recurse -Force .\mxsy-pre-auth-login $skillsDir
-Copy-Item -Recurse -Force .\mxsy-pre-cabinet-door $skillsDir
+```sh
+curl --request POST \
+  --url "https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor" \
+  --header "Accept: */*" \
+  --header "Authorization: Bearer <access-token>" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "devId": "TSD25100059",
+    "doorIds": [1, 2],
+    "optType": 1,
+    "password": "123456"
+  }'
 ```
+
+## 接口规则摘要
+
+| 场景 | 规则 |
+| --- | --- |
+| 登录接口 | `POST https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token` |
+| 电柜门接口 | `POST https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor` |
+| 登录参数位置 | `application/x-www-form-urlencoded` body |
+| 电柜参数位置 | JSON body |
+| 后续接口鉴权 | `Authorization: <token_type> <access_token>` |
+| 开门 | `optType=1`，必须传 `doorIds` |
+| 禁用 | `optType=2`，`doorIds` 为空或不传表示整柜禁用 |
+| 启用 | `optType=3`，`doorIds` 为空或不传表示整柜启用 |
+| 多仓门操作 | `doorIds` 传数组，例如 `[1, 2, 3]` |
 
 ## 验证
 
 如果本机有可用 Python，可以使用 Codex skill creator 校验器：
 
-```powershell
+```sh
 python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\mxsy-pre-auth-login
 python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\mxsy-pre-cabinet-door
 ```
 
-注意：不要在 README、skill 文档、提交记录或日志中保存真实 access token、refresh token、短信验证码或用户密码。
+## 许可证
+
+当前仓库尚未声明许可证。
