@@ -1,0 +1,5 @@
+interface:
+  display_name: "秒享商用换电 Pre 登录"
+  short_description: "秒享商用换电 pre 环境认证登录接口调用与排障参考"
+  default_prompt: "Use $mxsy-pre-auth-login to prepare a pre-environment OAuth2 login request for 秒享商用换电."
+
