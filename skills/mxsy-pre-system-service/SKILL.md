@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-system-service
-description: Use when Codex needs to work with 秒享商用换电 pre 环境 system-service APIs from 系统服务.md, excluding authentication login and cabinet door operation skills already covered by mxsy-pre-auth-login and mxsy-pre-cabinet-door. Supports finding endpoints by title/path, constructing GET/POST/PUT/DELETE requests under /mx-ce-system, using bearer Authorization from login, handling JSON/form/multipart requests, and interpreting Result/ResultObject business responses.
+description: Use when Codex needs to work with 秒享商用换电 test/pre or production system-service APIs from 系统服务.md, excluding authentication login and cabinet door operation skills already covered by mxsy-pre-auth-login and mxsy-pre-cabinet-door. Supports finding endpoints by title/path, constructing GET/POST/PUT/DELETE requests under /mx-ce-system, selecting the environment-specific request host, using bearer Authorization from login, handling JSON/form/multipart requests, and interpreting Result/ResultObject business responses.
 ---
 
 # 秒享商用换电 Pre 系统服务
@@ -18,7 +18,9 @@ The API reference was generated from `系统服务.md` and excludes `POST /mx-ce
 
 ## Request Rules
 
-- Use the pre host `https://pre.miaoxianghuandian.com`.
+- Select the request host by environment: test/pre uses `https://pre.miaoxianghuandian.com`; production uses `https://gateway.miaoxianghuandian.com`.
+- Use the test host by default when the user does not specify an environment.
+- Build request URLs from the selected host plus the documented path; if a reference URL shows the test host, keep the path and replace only the host for production.
 - Use paths exactly as documented; most system-service paths already include `/mx-ce-system`.
 - Get `Authorization` from `mxsy-pre-auth-login`: `Authorization: <token_type> <access_token>`.
 - If a business request reports token expiry or invalid token, use `mxsy-pre-auth-login` to refresh with `refresh_token`, then retry once.

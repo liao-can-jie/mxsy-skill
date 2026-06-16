@@ -4,6 +4,13 @@ Generated from `D:/download/system-service.md` source content. Search this file 
 
 Common response shape: `code` string, `data`, `msg`; `00000` means success. Non-`00000` business codes are failures even when HTTP status is 200.
 
+Environment hosts:
+
+- Test/pre: `https://pre.miaoxianghuandian.com`
+- Production: `https://gateway.miaoxianghuandian.com`
+
+The URLs below use the test host from the source OpenAPI. For production requests, keep the documented path unchanged and replace only the host with `https://gateway.miaoxianghuandian.com`.
+
 ## 01.区域接口 / 所属城市列表
 
 - Method: `GET`

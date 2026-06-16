@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-auth-login
-description: Use when Codex needs to work with the 秒享商用换电 pre 环境认证登录接口, including OAuth2 /mx-ce-auth/oauth2/token request construction, default password grant login, grant_type parameter selection, fixed Basic authorization for password/captcha login, access token header composition, access-token expiry handling with refresh_token, curl/PowerShell/API-client examples, login integration, token refresh handling, and response/error-code troubleshooting for https://pre.miaoxianghuandian.com.
+description: Use when Codex needs to work with the 秒享商用换电 test/pre or production authentication login API, including OAuth2 /mx-ce-auth/oauth2/token request construction, environment-specific request host selection, default password grant login, grant_type parameter selection, fixed Basic authorization for password/captcha login, access token header composition, access-token expiry handling with refresh_token, curl/PowerShell/API-client examples, login integration, token refresh handling, and response/error-code troubleshooting.
 ---
 
 # 秒享商用换电 Pre 认证登录
@@ -9,17 +9,19 @@ description: Use when Codex needs to work with the 秒享商用换电 pre 环境
 
 Read `references/oauth2-token.md` before generating requests, SDK code, integration tests, API documentation, or troubleshooting guidance for this authentication endpoint.
 
-Use the pre environment by default:
+Select the request host by environment. Use the test host by default when the user does not specify an environment:
 
 ```text
-https://pre.miaoxianghuandian.com/mx-ce-auth
+test/pre: https://pre.miaoxianghuandian.com
+production: https://gateway.miaoxianghuandian.com
 ```
 
 Call the endpoint as `POST /mx-ce-auth/oauth2/token` with `application/x-www-form-urlencoded` body parameters.
 
 ## Request Rules
 
-- Do not switch to another base URL unless the user explicitly provides it.
+- Build the request URL from the selected environment host plus `/mx-ce-auth/oauth2/token`.
+- Do not use another base URL unless the user explicitly provides it.
 - Do not invent `smsCode`, `password`, `refresh_token`, `cid`, mobile numbers, or client credentials. Ask the user for missing required values when a real request or executable script needs them.
 - Default `grant_type` to `password` when the user asks to log in but does not specify a grant type.
 - For `grant_type=password` and `grant_type=captcha`, always send `Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=`.
