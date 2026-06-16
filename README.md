@@ -11,6 +11,7 @@
 | --- | --- |
 | [`mxsy-pre-auth-login`](./skills/mxsy-pre-auth-login/SKILL.md) | 秒享商用换电 pre 环境认证登录技能。用于构造和调用 `POST /mx-ce-auth/oauth2/token`，默认使用 `grant_type=password`，支持 `password`、`captcha`、`uni_app_sms`、`uni_app_password`、`uni_app_wx`、`refresh_token` 等授权模式。`password` 和 `captcha` 登录固定携带 Basic 客户端请求头，登录成功后将 `data.token_type` 与 `data.access_token` 组合为后续业务接口的 `Authorization` 请求头；access token 到期后使用 `refresh_token` 续期。 |
 | [`mxsy-pre-cabinet-door`](./skills/mxsy-pre-cabinet-door/SKILL.md) | 秒享商用换电 pre 环境电柜门操控技能。用于构造和调用 `POST /mx-ce-system/api/cabinet/optCabinetDoor`，支持打开一个或多个仓门、禁用/启用一个或多个仓门、禁用/启用整柜，并按接口规则固定使用操作密码 `123456`。 |
+| [`mxsy-pre-system-service`](./skills/mxsy-pre-system-service/SKILL.md) | 秒享商用换电 pre 环境系统服务聚合技能。基于 `系统服务.md` 生成接口索引与参数明细，覆盖区域、用户、角色、菜单、部门、字典、仓储、电池、电柜、工单、企业、订单、活动等系统服务接口；已排除认证登录与电柜门操控等已有专用技能覆盖的接口。 |
 
 > [!TIP]
 > 技能会随着 pre 环境接口规则继续完善。提交新技能或修正接口规则时，请避免把真实 access token、refresh token、短信验证码、用户密码写入文档或提交记录。
@@ -48,6 +49,7 @@ $skillsDir = "$env:USERPROFILE\.codex\skills"
 New-Item -ItemType Directory -Force $skillsDir
 Copy-Item -Recurse -Force .\skills\mxsy-pre-auth-login $skillsDir
 Copy-Item -Recurse -Force .\skills\mxsy-pre-cabinet-door $skillsDir
+Copy-Item -Recurse -Force .\skills\mxsy-pre-system-service $skillsDir
 ```
 
 安装后重启对应智能工具，或开启新的会话，使 skill 元数据重新加载。
@@ -180,6 +182,14 @@ curl --request POST \
   }'
 ```
 
+### 查询系统服务接口
+
+```txt
+使用 mxsy-pre-system-service，帮我查找用户分页列表接口，并生成 pre 环境请求示例。
+```
+
+该技能会先检索 `references/api-index.md`，再读取 `references/api-details.md` 中对应接口的请求参数明细。认证登录和电柜门操控已由专用技能覆盖，不在该聚合技能中重复维护。
+
 ## 接口规则摘要
 
 | 场景 | 规则 |
@@ -191,6 +201,7 @@ curl --request POST \
 | 登录参数位置 | `application/x-www-form-urlencoded` body |
 | 电柜参数位置 | JSON body |
 | 后续接口鉴权 | `Authorization: <token_type> <access_token>` |
+| 系统服务聚合接口 | 使用 `mxsy-pre-system-service` 从接口索引中查找；已排除已有专用技能覆盖的接口 |
 | 开门 | `optType=1`，必须传 `doorIds` |
 | 禁用 | `optType=2`，`doorIds` 为空或不传表示整柜禁用 |
 | 启用 | `optType=3`，`doorIds` 为空或不传表示整柜启用 |
@@ -203,6 +214,7 @@ curl --request POST \
 ```sh
 python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\skills\mxsy-pre-auth-login
 python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\skills\mxsy-pre-cabinet-door
+python C:\Users\Administrator\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\skills\mxsy-pre-system-service
 ```
 
 ## 许可证

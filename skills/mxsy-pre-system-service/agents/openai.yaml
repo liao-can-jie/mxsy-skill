@@ -1,0 +1,4 @@
+interface:
+  display_name: "秒享商用换电 Pre 系统服务"
+  short_description: "pre 环境系统服务接口查询、构造与排障参考"
+  default_prompt: "Use $mxsy-pre-system-service to prepare a pre-environment system-service API request."
