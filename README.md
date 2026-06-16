@@ -9,7 +9,7 @@
 
 | 技能 | 简介 |
 | --- | --- |
-| [`mxsy-pre-auth-login`](./skills/mxsy-pre-auth-login/SKILL.md) | 秒享商用换电 pre 环境认证登录技能。用于构造和调用 `POST /mx-ce-auth/oauth2/token`，支持 `password`、`captcha`、`uni_app_sms`、`uni_app_password`、`uni_app_wx`、`refresh_token` 等授权模式。`password` 和 `captcha` 登录固定携带 Basic 客户端请求头，登录成功后将 `data.token_type` 与 `data.access_token` 组合为后续业务接口的 `Authorization` 请求头。 |
+| [`mxsy-pre-auth-login`](./skills/mxsy-pre-auth-login/SKILL.md) | 秒享商用换电 pre 环境认证登录技能。用于构造和调用 `POST /mx-ce-auth/oauth2/token`，默认使用 `grant_type=password`，支持 `password`、`captcha`、`uni_app_sms`、`uni_app_password`、`uni_app_wx`、`refresh_token` 等授权模式。`password` 和 `captcha` 登录固定携带 Basic 客户端请求头，登录成功后将 `data.token_type` 与 `data.access_token` 组合为后续业务接口的 `Authorization` 请求头；access token 到期后使用 `refresh_token` 续期。 |
 | [`mxsy-pre-cabinet-door`](./skills/mxsy-pre-cabinet-door/SKILL.md) | 秒享商用换电 pre 环境电柜门操控技能。用于构造和调用 `POST /mx-ce-system/api/cabinet/optCabinetDoor`，支持打开一个或多个仓门、禁用/启用一个或多个仓门、禁用/启用整柜，并按接口规则固定使用操作密码 `123456`。 |
 
 > [!TIP]
@@ -57,7 +57,7 @@ Copy-Item -Recurse -Force .\skills\mxsy-pre-cabinet-door $skillsDir
 ### 登录 pre 环境
 
 ```txt
-使用 mxsy-pre-auth-login，pre 环境登录，grant_type=password，账号 <username>，密码 <password>，获取 access_token 和 token_type。
+使用 mxsy-pre-auth-login，pre 环境登录，账号 <username>，密码 <password>，获取 access_token 和 token_type。
 ```
 
 该技能会按接口规则调用：
@@ -79,6 +79,8 @@ Authorization: <token_type> <access_token>
 ```txt
 Authorization: Bearer <access_token>
 ```
+
+access token 到期后，使用登录响应中的 `refresh_token` 续期，再用新的 `token_type` 和 `access_token` 重新组合业务接口请求头。
 
 ### 打开指定仓门
 
@@ -184,6 +186,8 @@ curl --request POST \
 | --- | --- |
 | 登录接口 | `POST https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token` |
 | 电柜门接口 | `POST https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor` |
+| 默认登录方式 | 未指定 `grant_type` 时默认使用 `password` |
+| token 续期 | access token 到期后使用 `grant_type=refresh_token` 和上次登录返回的 `refresh_token` 续期 |
 | 登录参数位置 | `application/x-www-form-urlencoded` body |
 | 电柜参数位置 | JSON body |
 | 后续接口鉴权 | `Authorization: <token_type> <access_token>` |

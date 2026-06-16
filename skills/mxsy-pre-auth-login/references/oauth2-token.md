@@ -30,7 +30,7 @@ Use the fixed Basic header for `password` and `captcha` login. Do not print this
 
 | Name | Required | Applies To | Description | Example |
 | --- | --- | --- | --- | --- |
-| `grant_type` | yes | all modes | 授权模式 | `uni_app_sms` |
+| `grant_type` | yes | all modes | 授权模式；default to `password` when unspecified for login | `password` |
 | `username` | conditional | `captcha`, `password` | 用户名 | |
 | `password` | conditional | `captcha`, `password`, `uni_app_password` | 用户密码; URL-encode this value | `<password>` |
 | `verifyCodeKey` | conditional | `captcha` | 验证码缓存 Key | |
@@ -51,7 +51,7 @@ Use the fixed Basic header for `password` and `captcha` login. Do not print this
 | `wx_mini_app` | Not specified by the provided OpenAPI; ask for project-specific fields before implementation |
 | `captcha` | `username`, `password`, `verifyCodeKey`, `verifyCode`; fixed Basic `Authorization` header |
 | `password` | `username`, `password`; fixed Basic `Authorization` header |
-| `refresh_token` | `refresh_token` |
+| `refresh_token` | `refresh_token`; fixed Basic `Authorization` header |
 
 ## cURL Examples
 
@@ -117,7 +117,7 @@ Refresh token:
 curl --request POST \
   --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
   --header "Accept: */*" \
-  --header "Authorization: Basic <client-basic-token>" \
+  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
   --header "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "grant_type=refresh_token" \
   --data-urlencode "refresh_token=<refresh-token>"
@@ -144,6 +144,8 @@ Authorization: <token_type> <access_token>
 ```
 
 If `data.token_type` is `Bearer`, use `Authorization: Bearer <access_token>`.
+
+When a later business API indicates token expiry or invalid token, call this same endpoint with `grant_type=refresh_token` and the previous `data.refresh_token`. On success, replace all stored token fields with the refreshed response, rebuild the business `Authorization` header, and retry the original business request once. If refresh fails, perform a fresh `password` login after confirming credentials are available.
 
 HTTP response mappings from the OpenAPI:
 
