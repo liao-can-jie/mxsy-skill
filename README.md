@@ -25,6 +25,35 @@
 
 未明确指定环境时，技能默认使用测试环境。除请求 host 按环境切换外，接口路径、参数、鉴权和响应处理规则保持不变。
 
+## 使用区别
+
+测试环境和生产环境的使用方式只在“环境选择”和“请求 URL”上不同：
+
+| 使用项 | 测试环境 | 生产环境 |
+| --- | --- | --- |
+| 提示词写法 | 明确写“测试环境”或“pre 环境”，也可以不写环境 | 必须明确写“生产环境” |
+| 请求 URL | `https://pre.miaoxianghuandian.com` | `https://gateway.miaoxianghuandian.com` |
+| 接口路径 | 保持原路径，例如 `/mx-ce-auth/oauth2/token` | 保持原路径，例如 `/mx-ce-auth/oauth2/token` |
+| 参数和鉴权 | 按对应接口规则传参和携带 `Authorization` | 与测试环境一致 |
+
+示例：
+
+```txt
+使用 mxsy-pre-auth-login，测试环境登录，账号 <username>，密码 <password>。
+```
+
+```txt
+使用 mxsy-pre-auth-login，生产环境登录，账号 <username>，密码 <password>。
+```
+
+```txt
+使用 mxsy-pre-cabinet-door，生产环境打开电柜 TSD25100059 的 1、2 号仓门。
+```
+
+```txt
+使用 mxsy-pre-system-service，帮我查找用户分页列表接口，并生成生产环境请求示例。
+```
+
 ## 安装 Skills
 
 支持 Skills 的智能工具通常可以通过仓库地址安装。可参考如下提示词：
@@ -228,6 +257,12 @@ curl --request POST \
 
 ```txt
 使用 mxsy-pre-system-service，帮我查找用户分页列表接口，并生成测试环境请求示例。
+```
+
+生产环境只需要在提示词中明确“生产环境”：
+
+```txt
+使用 mxsy-pre-system-service，帮我查找用户分页列表接口，并生成生产环境请求示例。
 ```
 
 该技能会先检索 `references/api-index.md`，再读取 `references/api-details.md` 中对应接口的请求参数明细。认证登录和电柜门操控已由专用技能覆盖，不在该聚合技能中重复维护。
