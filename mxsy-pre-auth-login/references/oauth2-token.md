@@ -5,7 +5,7 @@ Source: OpenAPI 3.0.1, title `认证中心`, version `3.0.0`.
 ## Endpoint
 
 ```text
-POST https://pre.miaoxianghuandian.com/oauth2/token
+POST https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token
 ```
 
 Summary: OAuth2 认证.
@@ -20,17 +20,19 @@ Operation ID: `postAccessToken`.
 
 | Name | Required | Description | Example |
 | --- | --- | --- | --- |
-| `Authorization` | yes | 客户端信息，Basic authorization header | `Basic bXgtY2UtYXBwOjEyMzQ1Ng==` |
+| `Accept` | recommended | Response media types accepted by the caller | `*/*` |
+| `Authorization` | conditional | 客户端信息，Basic authorization header. For `grant_type=password` and `grant_type=captcha`, always use the fixed value shown here. | `Basic bWFsbC1hZG1pbjoxMjM0NTY=` |
+| `Content-Type` | yes | Form body content type | `application/x-www-form-urlencoded` |
 
-Treat the documented header value as an OpenAPI example. Confirm client credentials with the user before sending real requests.
+Use the fixed Basic header for `password` and `captcha` login. Do not print this value in final answers or logs unless the user explicitly requests a literal debug artifact.
 
-## Query Parameters
+## Form Body Parameters
 
 | Name | Required | Applies To | Description | Example |
 | --- | --- | --- | --- | --- |
 | `grant_type` | yes | all modes | 授权模式 | `uni_app_sms` |
 | `username` | conditional | `captcha`, `password` | 用户名 | |
-| `password` | conditional | `captcha`, `password`, `uni_app_password` | 用户密码; URL-encode this value | `${1}` |
+| `password` | conditional | `captcha`, `password`, `uni_app_password` | 用户密码; URL-encode this value | `<password>` |
 | `verifyCodeKey` | conditional | `captcha` | 验证码缓存 Key | |
 | `verifyCode` | conditional | `captcha` | 验证码 | |
 | `mobile` | conditional | `uni_app_sms`, `uni_app_password` | 手机号 | `<mobile>` |
@@ -47,8 +49,8 @@ Treat the documented header value as an OpenAPI example. Confirm client credenti
 | `uni_app_password` | `mobile`, `password`, `cid` |
 | `uni_app_wx` | `code`, `cid` |
 | `wx_mini_app` | Not specified by the provided OpenAPI; ask for project-specific fields before implementation |
-| `captcha` | `username`, `password`, `verifyCodeKey`, `verifyCode` |
-| `password` | `username`, `password` |
+| `captcha` | `username`, `password`, `verifyCodeKey`, `verifyCode`; fixed Basic `Authorization` header |
+| `password` | `username`, `password`; fixed Basic `Authorization` header |
 | `refresh_token` | `refresh_token` |
 
 ## cURL Examples
@@ -57,24 +59,68 @@ SMS login:
 
 ```bash
 curl --request POST \
-  --url "https://pre.miaoxianghuandian.com/oauth2/token?grant_type=uni_app_sms&mobile=<mobile>&smsCode=<smsCode>&cid=<cid>" \
-  --header "Authorization: Basic <client-basic-token>"
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic <client-basic-token>" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=uni_app_sms" \
+  --data-urlencode "mobile=<mobile>" \
+  --data-urlencode "smsCode=<smsCode>" \
+  --data-urlencode "cid=<cid>"
 ```
 
 Mobile password login:
 
 ```bash
 curl --request POST \
-  --url "https://pre.miaoxianghuandian.com/oauth2/token?grant_type=uni_app_password&mobile=<mobile>&password=<url-encoded-password>&cid=<cid>" \
-  --header "Authorization: Basic <client-basic-token>"
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic <client-basic-token>" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=uni_app_password" \
+  --data-urlencode "mobile=<mobile>" \
+  --data-urlencode "password=<password>" \
+  --data-urlencode "cid=<cid>"
+```
+
+Username password login:
+
+```bash
+curl --request POST \
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=password" \
+  --data-urlencode "username=<username>" \
+  --data-urlencode "password=<password>"
+```
+
+Captcha login:
+
+```bash
+curl --request POST \
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=captcha" \
+  --data-urlencode "username=<username>" \
+  --data-urlencode "password=<password>" \
+  --data-urlencode "verifyCodeKey=<verifyCodeKey>" \
+  --data-urlencode "verifyCode=<verifyCode>"
 ```
 
 Refresh token:
 
 ```bash
 curl --request POST \
-  --url "https://pre.miaoxianghuandian.com/oauth2/token?grant_type=refresh_token&refresh_token=<refresh-token>" \
-  --header "Authorization: Basic <client-basic-token>"
+  --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
+  --header "Accept: */*" \
+  --header "Authorization: Basic <client-basic-token>" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=refresh_token" \
+  --data-urlencode "refresh_token=<refresh-token>"
 ```
 
 ## Response Shape
@@ -90,6 +136,14 @@ Success and business errors use the `Result` / `ResultObject` shape:
 ```
 
 `code` is a string. `00000` means success; every other value means failure, even when the HTTP status is 200.
+
+On successful login, compose the authorization header for later APIs from `data.token_type` and `data.access_token`:
+
+```text
+Authorization: <token_type> <access_token>
+```
+
+If `data.token_type` is `Bearer`, use `Authorization: Bearer <access_token>`.
 
 HTTP response mappings from the OpenAPI:
 
