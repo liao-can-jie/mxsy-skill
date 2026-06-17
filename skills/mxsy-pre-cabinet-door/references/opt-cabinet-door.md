@@ -38,7 +38,7 @@ Schema: `OptCabinetDoorDTO`.
 | Name | Required | Type | Description | Example |
 | --- | --- | --- | --- | --- |
 | `devId` | yes | string | 设备编号 | `<devId>` |
-| `doorIds` | conditional | integer array | 柜门编号列表；为空时仅可在禁用/启用场景表示作用于柜体 | `[1,2,3]` |
+| `doorIds` | conditional | integer array / null | 柜门编号列表；`optType=1` 时传 `null` 或 `[]` 表示打开所有仓门；`optType=2/3` 时为空表示作用于柜体 | `[1,2,3]` |
 | `optType` | yes | integer | 操作类型：`1` 开启/打开仓门，`2` 禁用，`3` 启用 | `1` |
 | `password` | yes | string | 操作密码；从安全配置或明确用户输入获取，不在文档或日志中明文展示 | `<operation-password>` |
 | `mobile` | no | string | 开仓过后若有电池绑定手机号；格式 `^1[3-9]\d{9}$` | `<mobile>` |
@@ -50,6 +50,7 @@ Schema: `OptCabinetDoorDTO`.
 | --- | --- | --- |
 | Open one door | `1` | Provide one door number, e.g. `[1]` |
 | Open multiple doors | `1` | Provide all target door numbers, e.g. `[1,2,3]` |
+| Open all doors | `1` | Send `doorIds: null` or `doorIds: []` |
 | Disable one door | `2` | Provide one door number, e.g. `[1]` |
 | Disable multiple doors | `2` | Provide all target door numbers, e.g. `[1,2,3]` |
 | Disable whole cabinet | `2` | Omit `doorIds` or send an empty list |
@@ -57,7 +58,7 @@ Schema: `OptCabinetDoorDTO`.
 | Enable multiple doors | `3` | Provide all target door numbers, e.g. `[1,2,3]` |
 | Enable whole cabinet | `3` | Omit `doorIds` or send an empty list |
 
-Do not use empty `doorIds` for `optType: 1`.
+For `optType: 1`, use `doorIds: null` or `doorIds: []` only when opening all doors.
 
 ## Progressive Rate Limit
 
@@ -116,6 +117,23 @@ curl --request POST \
   --data '{
     "devId": "<devId>",
     "doorIds": [1, 2, 3],
+    "optType": 1,
+    "password": "<operation-password>",
+    "remark": "<remark>"
+  }'
+```
+
+Open all doors:
+
+```bash
+curl --request POST \
+  --url "https://pre.miaoxianghuandian.com/mx-ce-system/api/cabinet/optCabinetDoor" \
+  --header "Accept: */*" \
+  --header "Authorization: Bearer <access-token>" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "devId": "<devId>",
+    "doorIds": [],
     "optType": 1,
     "password": "<operation-password>",
     "remark": "<remark>"

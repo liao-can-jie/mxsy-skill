@@ -38,7 +38,7 @@ If `data.token_type` is `Bearer`, send `Authorization: Bearer <access_token>`.
 - Before executing any real cabinet operation, restate the environment, host, `devId`, `optType`, and target doors or whole-cabinet scope, then require explicit user confirmation. For production, require the user to explicitly say `生产环境` and confirm the physical operation.
 - Apply the progressive per-user/IP rate limit described in `references/opt-cabinet-door.md` before executing `optCabinetDoor`.
 - Preserve `optType` semantics exactly: `1` opens doors, `2` disables, and `3` enables.
-- For `optType: 1`, provide `doorIds`; do not treat an empty `doorIds` list as "open whole cabinet".
+- For `optType: 1`, pass target door numbers in `doorIds` for specific doors; to open all doors, send `doorIds: null` or `doorIds: []`.
 - For `optType: 2` or `optType: 3`, `doorIds` may be omitted or empty only when operating on the entire cabinet.
 - To open, disable, or enable multiple doors, pass all target door numbers in `doorIds`.
 - Treat HTTP 200 with business `code !== "00000"` as a failed operation. Handle 400/403/404 with the same `ResultObject` response shape.
@@ -51,7 +51,7 @@ Build the request body from a validated command object:
 - `devId`: required device number.
 - `optType`: required operation type, one of `1`, `2`, `3`.
 - `password`: required operation password from secure configuration or explicit user input.
-- `doorIds`: optional integer array; required for opening, optional for disabling/enabling the whole cabinet.
+- `doorIds`: optional integer array or null; for opening, pass specific door numbers or use `null`/`[]` to open all doors; optional for disabling/enabling the whole cabinet.
 - `mobile`: optional phone number used after opening when a battery binding phone number is needed.
 - `remark`: optional operation note.
 
