@@ -40,7 +40,7 @@ Schema: `OptCabinetDoorDTO`.
 | `devId` | yes | string | 设备编号 | `<devId>` |
 | `doorIds` | conditional | integer array | 柜门编号列表；为空时仅可在禁用/启用场景表示作用于柜体 | `[1,2,3]` |
 | `optType` | yes | integer | 操作类型：`1` 开启/打开仓门，`2` 禁用，`3` 启用 | `1` |
-| `password` | yes | string | 操作密码；目前固定为 `123456` | `123456` |
+| `password` | yes | string | 操作密码；从安全配置或明确用户输入获取，不在文档或日志中明文展示 | `<operation-password>` |
 | `mobile` | no | string | 开仓过后若有电池绑定手机号；格式 `^1[3-9]\d{9}$` | `<mobile>` |
 | `remark` | no | string | 备注 | `<remark>` |
 
@@ -117,7 +117,7 @@ curl --request POST \
     "devId": "<devId>",
     "doorIds": [1, 2, 3],
     "optType": 1,
-    "password": "123456",
+    "password": "<operation-password>",
     "remark": "<remark>"
   }'
 ```
@@ -133,7 +133,7 @@ curl --request POST \
   --data '{
     "devId": "<devId>",
     "optType": 2,
-    "password": "123456",
+    "password": "<operation-password>",
     "remark": "<remark>"
   }'
 ```
@@ -150,7 +150,7 @@ curl --request POST \
     "devId": "<devId>",
     "doorIds": [1, 2, 3],
     "optType": 3,
-    "password": "123456",
+    "password": "<operation-password>",
     "remark": "<remark>"
   }'
 ```

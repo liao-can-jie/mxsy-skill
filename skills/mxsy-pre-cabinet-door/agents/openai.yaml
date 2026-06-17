@@ -1,4 +1,4 @@
 interface:
   display_name: "秒享商用换电 Pre 电柜门"
-  short_description: "测试/生产环境电柜门操作接口与同用户/IP递进限流参考"
+  short_description: "测试/生产电柜门操作、确认规则与递进限流参考"
   default_prompt: "Use $mxsy-pre-cabinet-door to prepare a pre-environment cabinet door operation request."

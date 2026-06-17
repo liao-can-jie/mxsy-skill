@@ -28,10 +28,10 @@ Operation ID: `postAccessToken`.
 | Name | Required | Description | Example |
 | --- | --- | --- | --- |
 | `Accept` | recommended | Response media types accepted by the caller | `*/*` |
-| `Authorization` | conditional | 客户端信息，Basic authorization header. For `grant_type=password` and `grant_type=captcha`, always use the fixed value shown here. | `Basic bWFsbC1hZG1pbjoxMjM0NTY=` |
+| `Authorization` | conditional | 客户端信息，Basic authorization header. For `grant_type=password`, `grant_type=captcha`, and `grant_type=refresh_token`, use the configured client Basic credential. | `Basic <client-basic-token>` |
 | `Content-Type` | yes | Form body content type | `application/x-www-form-urlencoded` |
 
-Use the fixed Basic header for `password` and `captcha` login. Do not print this value in final answers or logs unless the user explicitly requests a literal debug artifact.
+Use the configured Basic header for `password`, `captcha`, and `refresh_token` requests. Never print the full Basic value in final answers, generated examples, or logs; use `Basic <client-basic-token>`.
 
 ## Form Body Parameters
 
@@ -56,9 +56,9 @@ Use the fixed Basic header for `password` and `captcha` login. Do not print this
 | `uni_app_password` | `mobile`, `password`, `cid` |
 | `uni_app_wx` | `code`, `cid` |
 | `wx_mini_app` | Not specified by the provided OpenAPI; ask for project-specific fields before implementation |
-| `captcha` | `username`, `password`, `verifyCodeKey`, `verifyCode`; fixed Basic `Authorization` header |
-| `password` | `username`, `password`; fixed Basic `Authorization` header |
-| `refresh_token` | `refresh_token`; fixed Basic `Authorization` header |
+| `captcha` | `username`, `password`, `verifyCodeKey`, `verifyCode`; configured Basic `Authorization` header |
+| `password` | `username`, `password`; configured Basic `Authorization` header |
+| `refresh_token` | `refresh_token`; configured Basic `Authorization` header |
 
 ## cURL Examples
 
@@ -96,7 +96,7 @@ Username password login:
 curl --request POST \
   --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
   --header "Accept: */*" \
-  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Authorization: Basic <client-basic-token>" \
   --header "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "grant_type=password" \
   --data-urlencode "username=<username>" \
@@ -109,7 +109,7 @@ Captcha login:
 curl --request POST \
   --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
   --header "Accept: */*" \
-  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Authorization: Basic <client-basic-token>" \
   --header "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "grant_type=captcha" \
   --data-urlencode "username=<username>" \
@@ -124,7 +124,7 @@ Refresh token:
 curl --request POST \
   --url "https://pre.miaoxianghuandian.com/mx-ce-auth/oauth2/token" \
   --header "Accept: */*" \
-  --header "Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=" \
+  --header "Authorization: Basic <client-basic-token>" \
   --header "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "grant_type=refresh_token" \
   --data-urlencode "refresh_token=<refresh-token>"

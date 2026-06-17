@@ -2922,7 +2922,7 @@ No request parameters documented.
 | `adjustCabinetBatteryFullDTO` | 调整电柜电池满电阀值 | `body` | `true` | `AdjustCabinetBatteryFullDTO` | `AdjustCabinetBatteryFullDTO` |
 | `adjustCabinetBatteryFullDTO.devId` | 设备编号 | `` | `true` | `string` | `` |
 | `adjustCabinetBatteryFullDTO.fullBatteryStd` | 满电阀值 | `` | `true` | `integer(int32)` | `` |
-| `adjustCabinetBatteryFullDTO.password` | 控制密码 6位数字,默认123456 | `` | `true` | `string` | `` |
+| `adjustCabinetBatteryFullDTO.password` | 控制密码 6位数字；从安全配置或明确用户输入获取 | `` | `true` | `string` | `` |
 
 ## 06.字典接口 / 调整音量大小
 
@@ -3582,7 +3582,7 @@ No request parameters documented.
 | `remoteRestartCabinetDTO` | 远程重启 | `body` | `true` | `RemoteRestartCabinetDTO` | `RemoteRestartCabinetDTO` |
 | `remoteRestartCabinetDTO.devId` | 设备编号 | `` | `true` | `string` | `` |
 | `remoteRestartCabinetDTO.option` | 设置选项,1=普通重启,2=状态清空并重启 | `` | `false` | `integer(int32)` | `` |
-| `remoteRestartCabinetDTO.password` | 控制密码 6位数字,默认123456 | `` | `true` | `string` | `` |
+| `remoteRestartCabinetDTO.password` | 控制密码 6位数字；从安全配置或明确用户输入获取 | `` | `true` | `string` | `` |
 
 ## 06.字典接口 / 远程电柜上报地址
 

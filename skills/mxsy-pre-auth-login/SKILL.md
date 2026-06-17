@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-auth-login
-description: Use when Codex needs to work with the 秒享商用换电 test/pre or production authentication login API, including OAuth2 /mx-ce-auth/oauth2/token request construction, environment-specific request host selection, default password grant login, grant_type parameter selection, fixed Basic authorization for password/captcha login, access token header composition, access-token expiry handling with refresh_token, curl/PowerShell/API-client examples, login integration, token refresh handling, and response/error-code troubleshooting.
+description: Use when Codex needs to work with the 秒享商用换电 test/pre or production authentication login API, including OAuth2 /mx-ce-auth/oauth2/token request construction, environment-specific request host selection, default password grant login, grant_type parameter selection, configured Basic authorization for password/captcha login, access token header composition, access-token expiry handling with refresh_token, curl/PowerShell/API-client examples, login integration, token refresh handling, production-request confirmation, and response/error-code troubleshooting.
 ---
 
 # 秒享商用换电 Pre 认证登录
@@ -24,12 +24,13 @@ Call the endpoint as `POST /mx-ce-auth/oauth2/token` with `application/x-www-for
 - Do not use another base URL unless the user explicitly provides it.
 - Do not invent `smsCode`, `password`, `refresh_token`, `cid`, mobile numbers, or client credentials. Ask the user for missing required values when a real request or executable script needs them.
 - Default `grant_type` to `password` when the user asks to log in but does not specify a grant type.
-- For `grant_type=password` and `grant_type=captcha`, always send `Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=`.
+- For `grant_type=password`, `grant_type=captcha`, and `grant_type=refresh_token`, send the configured client Basic authorization header. Do not hard-code the client credential in examples, generated code, logs, or final answers.
+- Before executing a real production login or token refresh request, restate the production host, grant type, and account identifier, then require explicit user confirmation. Generating non-executable examples does not require confirmation.
 - Send OAuth parameters in the form body, not in the query string. Use `Content-Type: application/x-www-form-urlencoded` and `Accept: */*` for curl/API-client examples.
 - Preserve `grant_type` exactly as documented. Supported values are `uni_app_password`, `uni_app_sms`, `uni_app_wx`, `wx_mini_app`, `captcha`, `password`, and `refresh_token`.
 - URL-encode form parameters, especially `password`.
 - Treat HTTP 200 with business `code !== "00000"` as a failed login. Handle 400/403/404 with the same `ResultObject` response shape.
-- Avoid printing full access tokens, refresh tokens, SMS codes, passwords, or Basic credentials in final answers, logs, or generated examples unless the user explicitly asks for a literal debug artifact.
+- Never print full access tokens, refresh tokens, SMS codes, passwords, or Basic credentials in final answers, logs, or generated examples. Always use placeholders or redacted values.
 
 ## Token Header Composition
 
@@ -45,10 +46,10 @@ For example, if `token_type` is `Bearer`, the later request header must be `Auth
 
 When a later business API indicates the access token is expired or invalid, refresh the token before retrying the business request.
 
-Use `grant_type=refresh_token` with the existing `refresh_token` value. Send the OAuth parameters in the form body and include the fixed Basic client header:
+Use `grant_type=refresh_token` with the existing `refresh_token` value. Send the OAuth parameters in the form body and include the configured Basic client header:
 
 ```text
-Authorization: Basic bWFsbC1hZG1pbjoxMjM0NTY=
+Authorization: Basic <client-basic-token>
 ```
 
 If refresh succeeds, replace the stored `access_token`, `refresh_token`, `token_type`, and expiry metadata with the new response values, then rebuild the business API header as `Authorization: <token_type> <access_token>`. If refresh fails, perform a fresh `password` login after confirming required credentials are available.

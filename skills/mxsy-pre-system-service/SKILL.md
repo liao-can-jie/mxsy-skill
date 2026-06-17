@@ -23,13 +23,14 @@ The API reference was generated from `系统服务.md` and excludes `POST /mx-ce
 - Build request URLs from the selected host plus the documented path; if a reference URL shows the test host, keep the path and replace only the host for production.
 - Use paths exactly as documented; most system-service paths already include `/mx-ce-system`.
 - Get `Authorization` from `mxsy-pre-auth-login`: `Authorization: <token_type> <access_token>`.
+- Before executing a real production `POST`, `PUT`, `PATCH`, or `DELETE` system-service request, restate the environment, host, method, path, and key identifiers, then require explicit user confirmation. Generating non-executable examples does not require confirmation.
 - If a business request reports token expiry or invalid token, use `mxsy-pre-auth-login` to refresh with `refresh_token`, then retry once.
 - Use `Accept: */*` by default.
 - For `application/json`, send a JSON body.
 - For `application/x-www-form-urlencoded`, send form/query parameters as documented by the endpoint.
 - For `multipart/form-data`, use multipart file upload; do not fake file content.
 - Do not invent required IDs, mobile numbers, city IDs, user IDs, role IDs, file IDs, or bearer tokens. Ask for missing required values before making a real request.
-- Avoid printing full bearer tokens, refresh tokens, passwords, SMS codes, or personal mobile numbers in final answers or logs unless the user explicitly asks for a literal debug artifact.
+- Never print full bearer tokens, refresh tokens, passwords, SMS codes, or personal mobile numbers in final answers, generated examples, or logs. Always use placeholders or redacted values.
 
 ## Response Rules
 

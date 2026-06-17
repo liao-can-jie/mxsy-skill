@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-cabinet-door
-description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, fixed operation password handling, and Authorization header usage from mxsy-pre-auth-login.
+description: Use when Codex needs to operate 秒享商用换电 test/pre or production cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, configured operation password handling, Authorization header usage from mxsy-pre-auth-login, progressive per-user/IP rate-limit guidance, and explicit confirmation for real cabinet operations.
 ---
 
 # 秒享商用换电 Pre 电柜门操控
@@ -34,14 +34,15 @@ If `data.token_type` is `Bearer`, send `Authorization: Bearer <access_token>`.
 - Do not use another base URL unless the user explicitly provides it.
 - Do not invent `devId`, `doorIds`, `mobile`, `remark`, or bearer tokens. Ask for missing values before making real cabinet requests.
 - Always send JSON with `Content-Type: application/json` and `Accept: */*`.
-- Always include `password: "123456"` unless the user explicitly provides a different operation password.
+- Include the operation password from secure configuration or explicit user input. Do not hard-code operation passwords in examples, generated code, logs, or final answers.
+- Before executing any real cabinet operation, restate the environment, host, `devId`, `optType`, and target doors or whole-cabinet scope, then require explicit user confirmation. For production, require the user to explicitly say `生产环境` and confirm the physical operation.
 - Apply the progressive per-user/IP rate limit described in `references/opt-cabinet-door.md` before executing `optCabinetDoor`.
 - Preserve `optType` semantics exactly: `1` opens doors, `2` disables, and `3` enables.
 - For `optType: 1`, provide `doorIds`; do not treat an empty `doorIds` list as "open whole cabinet".
 - For `optType: 2` or `optType: 3`, `doorIds` may be omitted or empty only when operating on the entire cabinet.
 - To open, disable, or enable multiple doors, pass all target door numbers in `doorIds`.
 - Treat HTTP 200 with business `code !== "00000"` as a failed operation. Handle 400/403/404 with the same `ResultObject` response shape.
-- Avoid printing full bearer tokens, operation passwords, or sensitive mobile numbers in final answers, logs, or generated examples unless the user explicitly asks for a literal debug artifact.
+- Never print full bearer tokens, operation passwords, or sensitive mobile numbers in final answers, logs, or generated examples. Always use placeholders or redacted values.
 
 ## Implementation Guidance
 
@@ -49,7 +50,7 @@ Build the request body from a validated command object:
 
 - `devId`: required device number.
 - `optType`: required operation type, one of `1`, `2`, `3`.
-- `password`: required operation password, default `123456`.
+- `password`: required operation password from secure configuration or explicit user input.
 - `doorIds`: optional integer array; required for opening, optional for disabling/enabling the whole cabinet.
 - `mobile`: optional phone number used after opening when a battery binding phone number is needed.
 - `remark`: optional operation note.
