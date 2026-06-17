@@ -151,12 +151,42 @@ Authorization: Bearer <access_token>
 Content-Type: application/json
 {
   "devId": "<电柜编号>",
-  "doorIds": [<仓门号>],
+  "doorIds": [1,2,3],
   "optType": <1开仓/2禁用/3启用>,
   "password": "123456",
   "remark": "<备注，可选>"
 }
 ```
+
+**注意：**
+- `doorIds` 必须为整数数组，如 `[1]` 或 `[1,2,3]`
+- 开仓（`optType=1`）时 `doorIds` 必填，不支持空数组开全部
+- 一次最多可开 10 个仓门（取决于电柜总仓数）
+- 返回 `data: "开仓指令发送中"` 表示指令已下发，不代表仓门已物理打开
+- 实际操作验证：TSD25100059 十仓柜，开仓 `[1,2,3,4,5,6,7,8,9,10]` 全部成功
+
+### 14. 变更电柜上报地址
+```
+POST /mx-ce-system/api/cabinet/reportCabinetAddr
+Authorization: Bearer <access_token>
+Content-Type: application/json
+{
+  "devId": "<电柜编号>",
+  "domainName": "<上报服务器域名>",
+  "port": <端口号>,
+  "password": "123456"
+}
+```
+返回：`data: "变更上报地址指令发送中"` 表示指令已下发
+
+**mobile 参数的作用：**
+- 传入 `mobile`：代表用户要换电池，需要仓门里有电池且换绑到此用户，且此用户需要有有效套餐（返回 `B0001: 当前用户未购买套餐`）
+- 不传 `mobile`：纯开仓操作，任何有操作权限的账号均可执行，无需套餐
+
+**开仓行为：**
+- 不传 `doorIds`：打开所有仓门（本次验证 TSD25100059 不带 doorIds 开仓成功）
+- 传入 `doorIds`：仅打开指定仓门，最多 10 个
+- 返回 `data: "开仓指令发送中"` 表示指令已下发，不代表仓门已物理打开
 
 ### 14. 操控电柜禁启用（整柜）
 ```
@@ -256,9 +286,32 @@ Authorization: Bearer <access_token>
 capacityEnable=<true/false>
 ```
 
-## PC端导出功能
+### 23. 切换电柜远程上报地址
+```
+POST /mx-ce-system/api/cabinet/reportCabinetAddr
+Authorization: Bearer <access_token>
+Content-Type: application/json
+{
+  "devId": "<电柜编号>",
+  "reportUrl": "<上报域名>",
+  "<端口参数>": <端口号>,
+  "password": "123456"
+}
+```
 
-### 23. 导出换电柜列表
+**⚠️ 待确认参数：**
+- `devId` ✅ 必填，电柜编号
+- `reportUrl` ✅ 必填，上报域名（如 `device.miaoxianghuandian.com`，不含端口）
+- `password` ✅ 必填，操作密码
+- 端口字段名 ❓ **未确认**——尝试过 `port`/`reportPort`/`serverPort`/`servicePort` 均返回"端口不能为空"，需进一步探索
+
+**错误码：**
+- `A0400` + "域名不能为空" → `reportUrl` 字段缺失或为空
+- `A0400` + "端口不能为空" → 端口参数名错误或格式错误
+
+**用途：** 切换电柜的远程上报地址（TCP/Socket 连接目标）
+
+### 24. 导出换电柜列表
 ```
 POST /mx-ce-system/api/cabinet/pcCabinetList_export
 Authorization: Bearer <access_token>
@@ -269,7 +322,7 @@ Content-Type: application/json
 }
 ```
 
-### 24. 导出操作日志
+### 25. 导出操作日志
 ```
 POST /mx-ce-system/api/cabinet/pcCabinetOperationLog_export
 Authorization: Bearer <access_token>
@@ -281,7 +334,7 @@ Content-Type: application/json
 }
 ```
 
-### 25. 导出告警信息
+### 26. 导出告警信息
 ```
 POST /mx-ce-system/api/cabinet/exportCabinetAlarmData
 Authorization: Bearer <access_token>
@@ -293,7 +346,7 @@ Content-Type: application/json
 }
 ```
 
-### 26. 导出柜效查询
+### 27. 导出柜效查询
 ```
 POST /mx-ce-system/api/cabinet/exportPcCabinetEffect
 Authorization: Bearer <access_token>
@@ -304,7 +357,7 @@ Content-Type: application/json
 }
 ```
 
-### 27. PC端换电柜二维码
+### 28. PC端换电柜二维码
 ```
 GET /mx-ce-system/api/cabinet/pcCabinetQrCode?cabinetCode=<电柜编号>
 Authorization: Bearer <access_token>
@@ -312,7 +365,7 @@ Authorization: Bearer <access_token>
 
 ## PC端电柜编辑
 
-### 28. PC端电柜编辑修改
+### 29. PC端电柜编辑修改
 ```
 PUT /mx-ce-system/api/cabinet/pcCabinetEdit
 Authorization: Bearer <access_token>
@@ -328,7 +381,7 @@ Content-Type: application/json
 }
 ```
 
-### 29. PC端电柜图片修改
+### 30. PC端电柜图片修改
 ```
 PUT /mx-ce-system/api/cabinet/pcCabinetImageEdit
 Authorization: Bearer <access_token>
@@ -341,13 +394,13 @@ Content-Type: application/json
 
 ## 地图相关
 
-### 30. PC端换电柜-资产地图
+### 31. PC端换电柜-资产地图
 ```
 GET /mx-ce-system/api/cabinet/pcCabinetAssetMap
 Authorization: Bearer <access_token>
 ```
 
-### 31. PC端-地图位置-换电柜实时位置详情
+### 32. PC端-地图位置-换电柜实时位置详情
 ```
 GET /mx-ce-system/api/cabinet/cabinetMapDetail?cabinetCode=<电柜编号>
 Authorization: Bearer <access_token>
@@ -355,7 +408,7 @@ Authorization: Bearer <access_token>
 
 ## 仓门实时性能
 
-### 32. 柜门实时性能
+### 33. 柜门实时性能
 ```
 GET /mx-ce-system/api/cabinet/cabinetDoorPerformance?cabinetCode=<电柜编号>&doorId=<仓门号>
 Authorization: Bearer <access_token>
@@ -367,8 +420,17 @@ Authorization: Bearer <access_token>
 ```
 - `code === "00000"` 为成功
 - 失败时返回错误码如 `A0230`（登录失效）、`B0210`（系统限流）等
+- `optCabinetDoor` 成功时 `data` 为字符串：`"开仓指令发送中"`
 
-## 二维码解码
+## 实际操作验证记录
+
+### TSD25100059（十仓柜，Pre 环境）
+- ✅ 不带 doorIds、不带 mobile 开所有仓门 → 成功，返回 `开仓指令发送中`
+- ✅ 带 doorIds: [1] 开单个仓门 → 成功
+- ✅ 带 doorIds: [1..10] 开全部仓门 → 成功
+- ✅ 操作密码 `123456` 正确
+
+### 二维码解码
 本地优先使用 `zbarimg` CLI 解码，速度快、准确率高：
 ```bash
 # 手动解码
@@ -395,3 +457,4 @@ bash scripts/decode_qr.sh /path/to/qr_code.png
 - 仓门电池状态无直接 API，需通过 App 或管理后台查询
 - token 有效期 24 小时，失效返回 A0230
 - 生产环境操作需二次确认
+- 传 `mobile` 开仓需要用户有有效套餐；不传 `mobile` 则任何有操作权限的账号均可开仓
