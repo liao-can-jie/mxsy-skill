@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-cabinet-door
-description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, fixed operation password handling, Authorization header usage from mxsy-pre-auth-login, and progressive per-user/IP rate-limit guidance for this endpoint.
+description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, fixed operation password handling, and Authorization header usage from mxsy-pre-auth-login.
 ---
 
 # 秒享商用换电 Pre 电柜门操控
@@ -9,10 +9,11 @@ description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabin
 
 Read `references/opt-cabinet-door.md` before generating requests, SDK code, integration tests, API documentation, or troubleshooting guidance for cabinet door operations.
 
-Use the pre environment by default:
+Select the request host by environment. Use the test host by default when the user does not specify an environment:
 
 ```text
-https://pre.miaoxianghuandian.com
+test/pre: https://pre.miaoxianghuandian.com
+production: https://gateway.miaoxianghuandian.com
 ```
 
 Call the endpoint as `POST /mx-ce-system/api/cabinet/optCabinetDoor` with a JSON body and an `Authorization: <token_type> <access_token>` header.
@@ -29,7 +30,8 @@ If `data.token_type` is `Bearer`, send `Authorization: Bearer <access_token>`.
 
 ## Request Rules
 
-- Do not switch to another base URL unless the user explicitly provides it.
+- Build the request URL from the selected environment host plus `/mx-ce-system/api/cabinet/optCabinetDoor`.
+- Do not use another base URL unless the user explicitly provides it.
 - Do not invent `devId`, `doorIds`, `mobile`, `remark`, or bearer tokens. Ask for missing values before making real cabinet requests.
 - Always send JSON with `Content-Type: application/json` and `Accept: */*`.
 - Always include `password: "123456"` unless the user explicitly provides a different operation password.

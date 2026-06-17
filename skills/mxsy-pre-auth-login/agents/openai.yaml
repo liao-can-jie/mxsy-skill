@@ -1,4 +1,4 @@
 interface:
   display_name: "秒享商用换电 Pre 登录"
-  short_description: "pre 登录、默认 password 授权与 token 续期参考"
-  default_prompt: "Use $mxsy-pre-auth-login to prepare a pre-environment OAuth2 login request for 秒享商用换电."
+  short_description: "测试/生产登录、默认 password 授权与 token 续期参考"
+  default_prompt: "Use $mxsy-pre-auth-login to prepare a test or production OAuth2 login request for 秒享商用换电."

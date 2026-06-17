@@ -2,6 +2,13 @@
 
 Source: OpenAPI 3.0.1, title `系统服务`, version `2.0.0`.
 
+Environment hosts:
+
+- Test/pre: `https://pre.miaoxianghuandian.com`
+- Production: `https://gateway.miaoxianghuandian.com`
+
+Keep the documented path unchanged and switch only the host for production requests.
+
 ## Endpoint
 
 ```text
