@@ -1,6 +1,6 @@
 ---
 name: mxsy-pre-cabinet-door
-description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, fixed operation password handling, and Authorization header usage from mxsy-pre-auth-login.
+description: Use when Codex needs to operate 秒享商用换电 pre 环境 cabinet doors through the system service API, including POST /mx-ce-system/api/cabinet/optCabinetDoor request construction, opening one or multiple cabinet doors, disabling or enabling one door, multiple doors, or an entire cabinet, fixed operation password handling, Authorization header usage from mxsy-pre-auth-login, and progressive per-user/IP rate-limit guidance for this endpoint.
 ---
 
 # 秒享商用换电 Pre 电柜门操控
@@ -33,6 +33,7 @@ If `data.token_type` is `Bearer`, send `Authorization: Bearer <access_token>`.
 - Do not invent `devId`, `doorIds`, `mobile`, `remark`, or bearer tokens. Ask for missing values before making real cabinet requests.
 - Always send JSON with `Content-Type: application/json` and `Accept: */*`.
 - Always include `password: "123456"` unless the user explicitly provides a different operation password.
+- Apply the progressive per-user/IP rate limit described in `references/opt-cabinet-door.md` before executing `optCabinetDoor`.
 - Preserve `optType` semantics exactly: `1` opens doors, `2` disables, and `3` enables.
 - For `optType: 1`, provide `doorIds`; do not treat an empty `doorIds` list as "open whole cabinet".
 - For `optType: 2` or `optType: 3`, `doorIds` may be omitted or empty only when operating on the entire cabinet.

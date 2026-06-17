@@ -52,6 +52,50 @@ Schema: `OptCabinetDoorDTO`.
 
 Do not use empty `doorIds` for `optType: 1`.
 
+## Progressive Rate Limit
+
+Apply a progressive rate limit to `POST /mx-ce-system/api/cabinet/optCabinetDoor` before executing the cabinet operation.
+
+Identity dimensions:
+
+- User key: use the authenticated user ID when available.
+- IP key: use the real client IP address after trusted proxy/header normalization.
+- Enforce both dimensions when both are available. Reject the request if either dimension is rate limited.
+
+Default parameters:
+
+| Parameter | Value |
+| --- | --- |
+| Base seconds | `1` |
+| Multiplier | `2` |
+| Base count | `5` |
+
+For level `n` starting at `1`:
+
+- `limitSeconds(n) = baseSeconds * multiplier^(n - 1)`
+- `limitCount(n) = baseCount * multiplier^(n - 1)`
+- `windowSeconds(n) = previousWindowSeconds + limitSeconds(n) * multiplier * baseCount`
+- `windowSeconds(1) = 1 * 2 * 5 = 10`
+
+Threshold examples:
+
+| Level | Limit seconds | Limit count | Rolling window | Trigger condition |
+| --- | --- | --- | --- | --- |
+| `1` | `1` | `5` | `10s` | `5` requests within `10s` trigger level `2` |
+| `2` | `2` | `10` | `30s` | `10` requests within `30s` trigger level `3` |
+| `3` | `4` | `20` | `70s` | `20` requests within `70s` trigger level `4` |
+| `4` | `8` | `40` | `150s` | `40` requests within `150s` trigger level `5` |
+
+Implementation rules:
+
+- Count every request that reaches this endpoint before the cabinet operation is sent, including business-failed requests. Exclude CORS preflight requests.
+- Use a rolling window per identity key. A Redis sorted set keyed by endpoint plus identity is a suitable implementation: remove entries older than the largest active window, add the current request timestamp, then count entries within each level window.
+- Evaluate from the highest configured level down to level `1`; the highest matched level determines the next limit level.
+- When a level is triggered, apply the next level's minimum request interval. For example, `5` requests in `10s` activates level `2`, so the identity must wait at least `2s` before another accepted request. `10` requests in `30s` activates level `3`, so the wait becomes `4s`.
+- Store the last accepted timestamp per identity and reject requests whose elapsed time is less than the active level's `limitSeconds`.
+- Cap the maximum level to a configured value if the backend needs an upper bound. Without a cap, continue the same multiplier formula.
+- Return the standard business response code `B0210` (`系统限流`) when rejecting a request, preferably with HTTP `200` and a clear `msg` consistent with existing API behavior.
+
 ## cURL Examples
 
 Open multiple doors:
